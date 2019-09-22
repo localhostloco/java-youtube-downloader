@@ -1,6 +1,5 @@
 package com.localhostloco.youtubedownloader.model;
 
-import com.localhostloco.youtubedownloader.runtime.YoutubeDownloader;
 import com.localhostloco.youtubedownloader.exceptions.YoutubeException;
 import com.localhostloco.youtubedownloader.model.enums.ExtensionEnum;
 import com.localhostloco.youtubedownloader.model.formats.AudioFormat;
@@ -8,6 +7,7 @@ import com.localhostloco.youtubedownloader.model.formats.Format;
 import com.localhostloco.youtubedownloader.model.formats.VideoFormat;
 import com.localhostloco.youtubedownloader.model.quality.AudioQuality;
 import com.localhostloco.youtubedownloader.model.quality.VideoQuality;
+import com.localhostloco.youtubedownloader.runtime.YoutubeDownloader;
 
 import java.io.*;
 import java.net.URL;
