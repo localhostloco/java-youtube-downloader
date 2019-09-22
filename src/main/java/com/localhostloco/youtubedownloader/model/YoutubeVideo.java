@@ -1,27 +1,7 @@
 package com.localhostloco.youtubedownloader.model;
 
-/*-
- * #
- * Java youtube video and audio downloader
- *
- * Copyright (C) 2019 Igor Kiulian
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * #
- */
-
-import com.localhostloco.youtubedownloader.YoutubeDownloader;
-import com.localhostloco.youtubedownloader.YoutubeException;
+import com.localhostloco.youtubedownloader.runtime.YoutubeDownloader;
+import com.localhostloco.youtubedownloader.exceptions.YoutubeException;
 import com.localhostloco.youtubedownloader.model.enums.ExtensionEnum;
 import com.localhostloco.youtubedownloader.model.formats.AudioFormat;
 import com.localhostloco.youtubedownloader.model.formats.Format;
@@ -78,7 +58,7 @@ public class YoutubeVideo {
 
     for (int i = 0; i < formats.size(); i++) {
       Format format = formats.get(i);
-      if (format instanceof VideoFormat && ((VideoFormat) format).getQualityLabel() == videoQuality.name())
+      if (format instanceof VideoFormat && ((VideoFormat) format).getQualityLabel().equals(videoQuality.name()))
         find.add((VideoFormat) format);
     }
     return find;
@@ -142,16 +122,16 @@ public class YoutubeVideo {
     File outputFile = new File(outDir, cleanFilename(fileName));
 
     URL url = new URL(format.getUrl());
-    BufferedInputStream bis = new BufferedInputStream(url.openStream());
-    FileOutputStream fis = new FileOutputStream(outputFile);
-    byte[] buffer = new byte[4096];
-    int count = 0;
-    while ((count = bis.read(buffer, 0, 4096)) != -1) {
-      fis.write(buffer, 0, count);
+    try (BufferedInputStream bis = new BufferedInputStream(url.openStream())) {
+      try (FileOutputStream fis = new FileOutputStream(outputFile)) {
+        byte[] buffer = new byte[4096];
+        int count = 0;
+        while ((count = bis.read(buffer, 0, 4096)) != -1) {
+          fis.write(buffer, 0, count);
+        }
+        return outputFile;
+      }
     }
-    fis.close();
-    bis.close();
-    return outputFile;
   }
 
   public void downloadAsync(Format format, File outDir, YoutubeDownloader.DownloadCallback callback) throws IOException, YoutubeException {
@@ -179,25 +159,7 @@ public class YoutubeVideo {
 
     Thread thread = new Thread(() -> {
       try (BufferedInputStream bis = new BufferedInputStream(url.openStream())) {
-        try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(finalOutputFile))) {
-          double total = 0;
-          byte[] buffer = new byte[4096];
-          int count = 0;
-          int progress = 0;
-          while ((count = bis.read(buffer, 0, 4096)) != -1) {
-            bos.write(buffer, 0, count);
-            total += count;
-            int newProgress = (int) ((total / format.getContentLength()) * 100);
-            if (newProgress > progress) {
-              progress = newProgress;
-              callback.onDownloading(progress);
-            }
-          }
-
-          callback.onFinished(finalOutputFile);
-        } catch (IOException e) {
-          callback.onError(e);
-        }
+        buffer(finalOutputFile, bis, format, callback);
       } catch (IOException e) {
         e.printStackTrace();
       }
@@ -206,10 +168,32 @@ public class YoutubeVideo {
   }
 
   private String cleanFilename(String filename) {
-    for (char c : YoutubeDownloader.ILLEGAL_FILENAME_CHARACTERS) {
+    for (char c : YoutubeDownloader.getILLEGAL_FILENAME_CHARACTERS()) {
       filename = filename.replace(c, '_');
     }
     return filename;
+  }
+
+  private void buffer(File finalOutputFile, BufferedInputStream bis, Format format, YoutubeDownloader.DownloadCallback callback) {
+    try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(finalOutputFile))) {
+      double total = 0;
+      byte[] buffer = new byte[4096];
+      int count = 0;
+      int progress = 0;
+      while ((count = bis.read(buffer, 0, 4096)) != -1) {
+        bos.write(buffer, 0, count);
+        total += count;
+        int newProgress = (int) ((total / format.getContentLength()) * 100);
+        if (newProgress > progress) {
+          progress = newProgress;
+          callback.onDownloading(progress);
+        }
+      }
+
+      callback.onFinished(finalOutputFile);
+    } catch (IOException e) {
+      callback.onError(e);
+    }
   }
 
 }

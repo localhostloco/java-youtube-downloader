@@ -63,14 +63,13 @@ public class MavenWrapperDownloader {
     String url = DEFAULT_DOWNLOAD_URL;
     if (mavenWrapperPropertyFile.exists()) {
       FileInputStream mavenWrapperPropertyFileInputStream = null;
-      try {
-        mavenWrapperPropertyFileInputStream = new FileInputStream(mavenWrapperPropertyFile);
+      try (mavenWrapperPropertyFileInputStream =new FileInputStream(mavenWrapperPropertyFile)){
         Properties mavenWrapperProperties = new Properties();
         mavenWrapperProperties.load(mavenWrapperPropertyFileInputStream);
         url = mavenWrapperProperties.getProperty(PROPERTY_NAME_WRAPPER_URL, url);
-      } catch (IOException e) {
+      } catch(IOException e){
         System.out.println("- ERROR loading '" + MAVEN_WRAPPER_PROPERTIES_PATH + "'");
-      } finally {
+      } finally{
         try {
           if (mavenWrapperPropertyFileInputStream != null) {
             mavenWrapperPropertyFileInputStream.close();
@@ -83,18 +82,16 @@ public class MavenWrapperDownloader {
     System.out.println("- Downloading from: : " + url);
 
     File outputFile = new File(baseDirectory.getAbsolutePath(), MAVEN_WRAPPER_JAR_PATH);
-    if (!outputFile.getParentFile().exists()) {
-      if (!outputFile.getParentFile().mkdirs()) {
-        System.out.println(
-                "- ERROR creating output direcrory '" + outputFile.getParentFile().getAbsolutePath() + "'");
-      }
+    if (!outputFile.getParentFile().exists() && !outputFile.getParentFile().mkdirs()) {
+      System.out.println(
+              "- ERROR creating output direcrory '" + outputFile.getParentFile().getAbsolutePath() + "'");
     }
     System.out.println("- Downloading to: " + outputFile.getAbsolutePath());
     try {
       downloadFileFromURL(url, outputFile);
       System.out.println("Done");
       System.exit(0);
-    } catch (Throwable e) {
+    } catch (Exception e) {
       System.out.println("- Error downloading");
       e.printStackTrace();
       System.exit(1);
@@ -106,9 +103,12 @@ public class MavenWrapperDownloader {
     ReadableByteChannel rbc;
     rbc = Channels.newChannel(website.openStream());
     FileOutputStream fos = new FileOutputStream(destination);
-    fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
-    fos.close();
-    rbc.close();
+    try (fos =new FileOutputStream(destination)){
+      fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+    } finally{
+      fos.close();
+      rbc.close();
+    }
   }
 
 }

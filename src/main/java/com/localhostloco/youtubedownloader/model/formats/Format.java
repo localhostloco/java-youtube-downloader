@@ -1,25 +1,5 @@
 package com.localhostloco.youtubedownloader.model.formats;
 
-/*-
- * #
- * Java youtube video and audio downloader
- *
- * Copyright (C) 2019 Igor Kiulian
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * #
- */
-
 import com.google.gson.JsonObject;
 import com.localhostloco.youtubedownloader.model.Itag;
 import com.localhostloco.youtubedownloader.model.enums.ExtensionEnum;
@@ -36,7 +16,7 @@ public abstract class Format {
   private final Long lastModified;
   protected Itag itag;
 
-  protected Format(JsonObject json) throws Exception {
+  protected Format(JsonObject json) {
     try {
       itag = Itag.valueOf("i" + json.get("itag").getAsInt());
     } catch (ExceptionInInitializerError e) {
@@ -45,7 +25,7 @@ public abstract class Format {
       itag.setId(json.get("itag").getAsInt());
     }
     url = json.get("url").getAsString().replace("\\u0026", "&");
-    mimeType = (String) json.get("type").getAsString();
+    mimeType = json.get("type").getAsString();
     bitrate = json.get("bitrate").getAsInt();
     contentLength = json.get("clen").getAsLong();
     lastModified = json.get("lmt").getAsLong();

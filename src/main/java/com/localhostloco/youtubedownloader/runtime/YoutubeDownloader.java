@@ -1,28 +1,9 @@
-package com.localhostloco.youtubedownloader;
-
-/*-
- * #
- * Java youtube video and audio downloader
- *
- * Copyright (C) 2019 Igor Kiulian
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * #
- */
+package com.localhostloco.youtubedownloader.runtime;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.localhostloco.youtubedownloader.exceptions.YoutubeException;
 import com.localhostloco.youtubedownloader.model.Itag;
 import com.localhostloco.youtubedownloader.model.VideoDetails;
 import com.localhostloco.youtubedownloader.model.YoutubeVideo;
@@ -30,6 +11,7 @@ import com.localhostloco.youtubedownloader.model.formats.AudioFormat;
 import com.localhostloco.youtubedownloader.model.formats.AudioVideoFormat;
 import com.localhostloco.youtubedownloader.model.formats.Format;
 import com.localhostloco.youtubedownloader.model.formats.VideoFormat;
+import lombok.Getter;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -44,11 +26,13 @@ import java.util.regex.Pattern;
 
 public class YoutubeDownloader {
 
-  public static final char[] ILLEGAL_FILENAME_CHARACTERS = {'/', '\n', '\r', '\t', '\0', '\f', '`', '?', '*', '\\', '<', '>', '|', '\"', ':'};
-  private static final String AUDIO = "audio";
-  private static final String VIDEO = "video";
+  @Getter
+  private static final char[] ILLEGAL_FILENAME_CHARACTERS = {'/', '\n', '\r', '\t', '\0', '\f', '`', '?', '*', '\\', '<', '>', '|', '\"', ':'};
+  @Getter
   private static final String CONFIG_START = "ytplayer.config = ";
+  @Getter
   private static final String CONFIG_END = ";ytplayer.load";
+  @Getter
   private static final String ERROR = "\"status\":\"ERROR\",\"reason\":\"";
 
   public static YoutubeVideo getVideo(String videoId) throws YoutubeException, IOException {
@@ -59,40 +43,29 @@ public class YoutubeDownloader {
     int start = page.indexOf(CONFIG_START);
     int end = page.indexOf(CONFIG_END);
 
-    if (start == -1 || end == -1) {
-      int errorIndex = page.indexOf(ERROR);
-      if (errorIndex != -1) {
-        String reason = page.substring(errorIndex + ERROR.length(), page.indexOf("\"", errorIndex + ERROR.length() + 1));
-        throw new YoutubeException.VideoUnavailableException(reason);
-      } else {
-        throw new YoutubeException.BadPageException("Could not parse web page");
-      }
-    }
+    checkStartAndEndValues(start, end, page);
     String cfg = page.substring(start + CONFIG_START.length(), end);
 
-    JsonArray jsonAdaptiveFormats;
+    JsonArray jsonAdaptiveFormats = null;
 
-    String adaptive_fmts;
-    String url_encoded_fmt_stream_map;
+    String adaptiveFmts = null;
+    String urlEncodedFmtStreamMap = null;
     try {
       JsonObject config = new JsonParser().parse(cfg).getAsJsonObject();
       JsonObject args = config.getAsJsonObject("args");
-
-      url_encoded_fmt_stream_map = args.get("url_encoded_fmt_stream_map").getAsString();
-
-      adaptive_fmts = args.get("adaptive_fmts").getAsString();
-      jsonAdaptiveFormats = parseAdaptiveFormats(adaptive_fmts);
-      JsonObject player_response = new JsonParser().parse(args.get("player_response").getAsString()).getAsJsonObject();
-      if (player_response.has("videoDetails"))
-        videoDetails.setDetails(player_response.get("videoDetails").getAsJsonObject());
+      urlEncodedFmtStreamMap = args.get("url_encoded_fmt_stream_map").getAsString();
+      adaptiveFmts = args.get("adaptive_fmts").getAsString();
+      jsonAdaptiveFormats = parseAdaptiveFormats(adaptiveFmts);
+      JsonObject playerResponse = new JsonParser().parse(args.get("player_response").getAsString()).getAsJsonObject();
+      if (playerResponse.has("videoDetails"))
+        videoDetails.setDetails(playerResponse.get("videoDetails").getAsJsonObject());
     } catch (Exception e) {
       throw new YoutubeException.BadPageException("Could not parse web page");
     }
-
     List<Format> formats = new ArrayList<>(jsonAdaptiveFormats.size() + 1);
 
     try {
-      formats.add(new AudioVideoFormat(splitQuery(url_encoded_fmt_stream_map)));
+      formats.add(new AudioVideoFormat(splitQuery(urlEncodedFmtStreamMap)));
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -118,6 +91,18 @@ public class YoutubeDownloader {
     return new YoutubeVideo(videoDetails, formats);
   }
 
+  private static void checkStartAndEndValues(int start, int end, String page) throws YoutubeException.VideoUnavailableException, YoutubeException.BadPageException {
+    if (start == -1 || end == -1) {
+      int errorIndex = page.indexOf(ERROR);
+      if (errorIndex != -1) {
+        String reason = page.substring(errorIndex + ERROR.length(), page.indexOf('\"', errorIndex + ERROR.length() + 1));
+        throw new YoutubeException.VideoUnavailableException(reason);
+      } else {
+        throw new YoutubeException.BadPageException("Could not parse web page");
+      }
+    }
+  }
+
   private static String loadPage(String url) throws IOException {
     HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
     connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36");
@@ -135,12 +120,12 @@ public class YoutubeDownloader {
     return sb.toString();
   }
 
-  private static JsonArray parseAdaptiveFormats(String adaptive_fmts) {
+  private static JsonArray parseAdaptiveFormats(String adaptiveFmts) {
     JsonArray array = new JsonArray();
 
-    String splitBy = adaptive_fmts.substring(0, adaptive_fmts.indexOf("=") + 1);
+    String splitBy = adaptiveFmts.substring(0, adaptiveFmts.indexOf('=') + 1);
     Pattern pattern = Pattern.compile("&" + splitBy + "|^" + splitBy + "|," + splitBy);
-    for (String s : pattern.split(adaptive_fmts)) {
+    for (String s : pattern.split(adaptiveFmts)) {
       if (!s.isEmpty()) {
         JsonObject params = splitQuery(splitBy + s);
         if (params.has("url"))
@@ -153,7 +138,7 @@ public class YoutubeDownloader {
   }
 
   private static JsonObject splitQuery(String requestString) {
-    JsonObject query_pairs = new JsonObject();
+    JsonObject queryPairs = new JsonObject();
     try {
       if (requestString != null) {
         String[] pairs = requestString.split("&");
@@ -161,8 +146,8 @@ public class YoutubeDownloader {
         for (String pair : pairs) {
           String[] commaPairs = pair.split(",");
           for (String commaPair : commaPairs) {
-            int idx = commaPair.indexOf("=");
-            query_pairs.addProperty(URLDecoder.decode(commaPair.substring(0, idx), "UTF-8"), URLDecoder.decode(commaPair.substring(idx + 1), "UTF-8"));
+            int idx = commaPair.indexOf('=');
+            queryPairs.addProperty(URLDecoder.decode(commaPair.substring(0, idx), "UTF-8"), URLDecoder.decode(commaPair.substring(idx + 1), "UTF-8"));
 
           }
         }
@@ -171,7 +156,7 @@ public class YoutubeDownloader {
       System.err.println(requestString);
       e.printStackTrace();
     }
-    return query_pairs;
+    return queryPairs;
   }
 
   public interface DownloadCallback {
