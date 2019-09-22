@@ -1,4 +1,4 @@
-package com.github.kiulian.downloader.model;
+package com.localhostloco.youtubedownloader.model;
 
 /*-
  * #
@@ -20,18 +20,16 @@ package com.github.kiulian.downloader.model;
  * #
  */
 
-import com.github.kiulian.downloader.YoutubeDownloader;
-import com.github.kiulian.downloader.YoutubeException;
-import com.github.kiulian.downloader.model.formats.AudioFormat;
-import com.github.kiulian.downloader.model.formats.Format;
-import com.github.kiulian.downloader.model.formats.VideoFormat;
-import com.github.kiulian.downloader.model.quality.AudioQuality;
-import com.github.kiulian.downloader.model.quality.VideoQuality;
+import com.localhostloco.youtubedownloader.YoutubeDownloader;
+import com.localhostloco.youtubedownloader.YoutubeException;
+import com.localhostloco.youtubedownloader.model.formats.AudioFormat;
+import com.localhostloco.youtubedownloader.model.formats.Format;
+import com.localhostloco.youtubedownloader.model.formats.VideoFormat;
+import com.localhostloco.youtubedownloader.model.quality.AudioQuality;
+import com.localhostloco.youtubedownloader.model.quality.VideoQuality;
 
 import java.io.*;
-import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;

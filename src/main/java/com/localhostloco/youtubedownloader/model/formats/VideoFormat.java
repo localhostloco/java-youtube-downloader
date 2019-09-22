@@ -1,4 +1,4 @@
-package com.github.kiulian.downloader.model.formats;
+package com.localhostloco.youtubedownloader.model.formats;
 
 /*-
  * #
@@ -21,7 +21,7 @@ package com.github.kiulian.downloader.model.formats;
  */
 
 import com.alibaba.fastjson.JSONObject;
-import com.github.kiulian.downloader.model.quality.VideoQuality;
+import com.localhostloco.youtubedownloader.model.quality.VideoQuality;
 
 public class VideoFormat extends Format {
 

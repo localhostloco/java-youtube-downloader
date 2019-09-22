@@ -1,4 +1,4 @@
-package com.github.kiulian.downloader;
+package com.localhostloco.youtubedownloader;
 
 /*-
  * #
@@ -20,14 +20,10 @@ package com.github.kiulian.downloader;
  * #
  */
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-import com.github.kiulian.downloader.model.*;
-import com.github.kiulian.downloader.model.formats.AudioFormat;
-import com.github.kiulian.downloader.model.formats.AudioVideoFormat;
-import com.github.kiulian.downloader.model.formats.Format;
-import com.github.kiulian.downloader.model.formats.VideoFormat;
+import com.localhostloco.youtubedownloader.model.formats.AudioFormat;
+import com.localhostloco.youtubedownloader.model.formats.AudioVideoFormat;
+import com.localhostloco.youtubedownloader.model.formats.Format;
+import com.localhostloco.youtubedownloader.model.formats.VideoFormat;
 
 import java.io.BufferedReader;
 import java.io.File;

@@ -1,4 +1,4 @@
-package com.github.kiulian.downloader;
+package com.localhostloco.youtubedownloader;
 
 import java.io.File;
 

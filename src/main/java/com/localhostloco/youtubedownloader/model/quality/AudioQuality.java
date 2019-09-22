@@ -1,4 +1,4 @@
-package com.github.kiulian.downloader.model.quality;
+package com.localhostloco.youtubedownloader.model.quality;
 
 public enum AudioQuality {
     unknown,

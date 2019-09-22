@@ -1,4 +1,4 @@
-package com.github.kiulian.downloader.model.formats;
+package com.localhostloco.youtubedownloader.model.formats;
 
 /*-
  * #
@@ -21,8 +21,8 @@ package com.github.kiulian.downloader.model.formats;
  */
 
 import com.alibaba.fastjson.JSONObject;
-import com.github.kiulian.downloader.model.Extension;
-import com.github.kiulian.downloader.model.Itag;
+import com.localhostloco.youtubedownloader.model.Extension;
+import com.localhostloco.youtubedownloader.model.Itag;
 
 public abstract class Format {
 

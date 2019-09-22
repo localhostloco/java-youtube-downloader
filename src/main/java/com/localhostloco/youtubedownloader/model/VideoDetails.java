@@ -1,4 +1,4 @@
-package com.github.kiulian.downloader.model;
+package com.localhostloco.youtubedownloader.model;
 
 /*-
  * #
@@ -20,8 +20,8 @@ package com.github.kiulian.downloader.model;
  * #
  */
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -46,8 +46,8 @@ public class VideoDetails {
     }
 
     public void setDetails(JSONObject json) {
-        title = json.getString("title");
-        lengthSeconds = json.getInteger("lengthSeconds");
+        title = json.getAsString("title");
+        lengthSeconds = (int) json.getAsNumber("lengthSeconds");
         keywords = json.containsKey("keywords") ? json.getJSONArray("keywords").toJavaList(String.class) : Collections.emptyList();
         shortDescription = json.getString("shortDescription");
         JSONArray jsonThumbnails = json.getJSONObject("thumbnail").getJSONArray("thumbnails");

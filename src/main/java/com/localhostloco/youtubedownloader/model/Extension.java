@@ -1,4 +1,4 @@
-package com.github.kiulian.downloader.model;
+package com.localhostloco.youtubedownloader.model;
 
 public class Extension {
 

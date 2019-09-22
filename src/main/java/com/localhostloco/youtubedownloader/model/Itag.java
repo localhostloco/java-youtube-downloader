@@ -1,7 +1,7 @@
-package com.github.kiulian.downloader.model;
+package com.localhostloco.youtubedownloader.model;
 
-import com.github.kiulian.downloader.model.quality.AudioQuality;
-import com.github.kiulian.downloader.model.quality.VideoQuality;
+import com.localhostloco.youtubedownloader.model.quality.AudioQuality;
+import com.localhostloco.youtubedownloader.model.quality.VideoQuality;
 
 public enum Itag {
 
