@@ -20,78 +20,52 @@ package com.localhostloco.youtubedownloader.model.formats;
  * #
  */
 
-import com.alibaba.fastjson.JSONObject;
-import com.localhostloco.youtubedownloader.model.Extension;
+import com.google.gson.JsonObject;
 import com.localhostloco.youtubedownloader.model.Itag;
+import com.localhostloco.youtubedownloader.model.enums.ExtensionEnum;
+import lombok.Data;
 
+@Data
 public abstract class Format {
 
-    protected Itag itag;
-    private final String url;
-    private final String mimeType;
-    private final Extension extension;
-    private final Integer bitrate;
-    private final Long contentLength;
-    private final Long lastModified;
+  private final String url;
+  private final String mimeType;
+  private final ExtensionEnum extension;
+  private final Integer bitrate;
+  private final Long contentLength;
+  private final Long lastModified;
+  protected Itag itag;
 
-    protected Format(JSONObject json) throws Exception {
-        try {
-            itag = Itag.valueOf("i" + json.getInteger("itag"));
-        } catch (ExceptionInInitializerError e) {
-            e.printStackTrace();
-            itag = Itag.unknown;
-            itag.setId(json.getIntValue("itag"));
-        }
-        url = json.getString("url").replace("\\u0026", "&");
-        mimeType = (String) json.getOrDefault("type", "");
-        bitrate = json.getInteger("bitrate");
-        contentLength = json.getLong("clen");
-        lastModified = json.getLong("lmt");
-
-        if (mimeType.contains(Extension.MP4.value()))
-            extension = Extension.MP4;
-        else if (mimeType.contains(Extension.WEBM.value()))
-            extension = Extension.WEBM;
-        else if (mimeType.contains(Extension.FLV.value()))
-            extension = Extension.FLV;
-        else if (mimeType.contains(Extension.HLS.value()))
-            extension = Extension.HLS;
-        else if (mimeType.contains(Extension.THREEGP.value()))
-            extension = Extension.THREEGP;
-        else if (mimeType.contains(Extension.M4A.value()))
-            extension = Extension.MP4;
-        else
-            extension = Extension.UNKNOWN;
-
+  protected Format(JsonObject json) throws Exception {
+    try {
+      itag = Itag.valueOf("i" + json.get("itag").getAsInt());
+    } catch (ExceptionInInitializerError e) {
+      e.printStackTrace();
+      itag = Itag.unknown;
+      itag.setId(json.get("itag").getAsInt());
     }
+    url = json.get("url").getAsString().replace("\\u0026", "&");
+    mimeType = (String) json.get("type").getAsString();
+    bitrate = json.get("bitrate").getAsInt();
+    contentLength = json.get("clen").getAsLong();
+    lastModified = json.get("lmt").getAsLong();
 
-    public abstract String type();
+    if (mimeType.contains(ExtensionEnum.MP4.getValue()))
+      extension = ExtensionEnum.MP4;
+    else if (mimeType.contains(ExtensionEnum.WEBM.getValue()))
+      extension = ExtensionEnum.WEBM;
+    else if (mimeType.contains(ExtensionEnum.FLV.getValue()))
+      extension = ExtensionEnum.FLV;
+    else if (mimeType.contains(ExtensionEnum.HLS.getValue()))
+      extension = ExtensionEnum.HLS;
+    else if (mimeType.contains(ExtensionEnum.THREEGP.getValue()))
+      extension = ExtensionEnum.THREEGP;
+    else if (mimeType.contains(ExtensionEnum.M4A.getValue()))
+      extension = ExtensionEnum.MP4;
+    else
+      extension = ExtensionEnum.UNKNOWN;
 
-    public Itag itag() {
-        return itag;
-    }
+  }
 
-    public Integer bitrate() {
-        return bitrate;
-    }
-
-    public String mimeType() {
-        return mimeType;
-    }
-
-    public String url() {
-        return url;
-    }
-
-    public Long contentLength() {
-        return contentLength;
-    }
-
-    public long lastModified() {
-        return lastModified;
-    }
-
-    public Extension extension() {
-        return extension;
-    }
+  public abstract String type();
 }

@@ -20,86 +20,48 @@ package com.localhostloco.youtubedownloader.model;
  * #
  */
 
-import net.minidev.json.JSONArray;
-import net.minidev.json.JSONObject;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import lombok.Data;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
+@Data
 public class VideoDetails {
 
-    private String videoId;
-    private String title;
-    private int lengthSeconds;
-    private List<String> keywords;
-    private String shortDescription;
-    private List<String> thumbnails;
-    private String author;
-    private int viewCount;
-    private int averageRating;
-    private boolean isLiveContent;
+  private String videoId;
+  private String title;
+  private int lengthSeconds;
+  private List<String> keywords;
+  private String shortDescription;
+  private List<String> thumbnails;
+  private String author;
+  private int viewCount;
+  private int averageRating;
+  private boolean isLiveContent;
 
-    public VideoDetails(String videoId) {
-        this.videoId = videoId;
-        this.title = videoId;
-    }
+  public VideoDetails(String videoId) {
+    this.videoId = videoId;
+    this.title = videoId;
+  }
 
-    public void setDetails(JSONObject json) {
-        title = json.getAsString("title");
-        lengthSeconds = (int) json.getAsNumber("lengthSeconds");
-        keywords = json.containsKey("keywords") ? json.getJSONArray("keywords").toJavaList(String.class) : Collections.emptyList();
-        shortDescription = json.getString("shortDescription");
-        JSONArray jsonThumbnails = json.getJSONObject("thumbnail").getJSONArray("thumbnails");
-        thumbnails = new ArrayList<>(jsonThumbnails.size());
-        for (int i = 0; i < jsonThumbnails.size(); i++) {
-            JSONObject jsonObject = jsonThumbnails.getJSONObject(i);
-            if (jsonObject.containsKey("url"))
-                thumbnails.add(jsonObject.getString("url"));
-        }
-        averageRating = json.getInteger("averageRating");
-        viewCount = json.getInteger("viewCount");
-        author = json.getString("author");
-        isLiveContent = json.getBoolean("isLiveContent");
+  public void setDetails(JsonObject json) {
+    title = json.get("title").getAsString();
+    lengthSeconds = json.get("lengthSeconds").getAsInt();
+//        keywords = json.containsKey("keywords") ? json.getJsonArray("keywords").stream().collect( () -> {}); : Collections.emptyList();
+    shortDescription = json.get("shortDescription").getAsString();
+    JsonArray jsonThumbnails = json.get("thumbnail").getAsJsonObject().get("thumbnails").getAsJsonArray();
+    thumbnails = new ArrayList<>(jsonThumbnails.size());
+    for (int i = 0; i < jsonThumbnails.size(); i++) {
+      JsonObject JsonObject = jsonThumbnails.get(i).getAsJsonObject();
+      if (JsonObject.has("url"))
+        thumbnails.add(JsonObject.get("url").getAsString());
     }
+    averageRating = json.get("averageRating").getAsInt();
+    viewCount = json.get("viewCount").getAsInt();
+    author = json.get("author").getAsString();
+    isLiveContent = json.get("isLiveContent").getAsBoolean();
+  }
 
-    public String videoId() {
-        return videoId;
-    }
-
-    public String title() {
-        return title;
-    }
-
-    public int lengthSeconds() {
-        return lengthSeconds;
-    }
-
-    public List<String> keywords() {
-        return keywords;
-    }
-
-    public String description() {
-        return shortDescription;
-    }
-
-    public List<String> thumbnails() {
-        return thumbnails;
-    }
-
-    public String author() {
-        return author;
-    }
-
-    public int viewCount() {
-        return viewCount;
-    }
-
-    public int averageRating() {
-        return averageRating;
-    }
-
-    public boolean isLive() {
-        return isLiveContent;
-    }
 }

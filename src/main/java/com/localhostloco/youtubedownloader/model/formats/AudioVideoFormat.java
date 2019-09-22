@@ -20,47 +20,29 @@ package com.localhostloco.youtubedownloader.model.formats;
  * #
  */
 
-import com.alibaba.fastjson.JSONObject;
-import com.localhostloco.youtubedownloader.model.quality.AudioQuality;
+import com.google.gson.JsonObject;
+import lombok.Data;
 
+@Data
 public class AudioVideoFormat extends Format {
 
-    private final String qualityLabel;
-    private final Integer width;
-    private final Integer height;
+  private final String qualityLabel;
+  private final Integer width;
+  private final Integer height;
 
-    private Integer audioSampleRate;
+  private Integer audioSampleRate;
 
-    public AudioVideoFormat(JSONObject json) throws Exception {
-        super(json);
-        qualityLabel = json.getString("qualityLabel");
-        width = json.getInteger("width");
-        height = json.getInteger("height");
-        audioSampleRate = json.getInteger("audio_sample_rate");
-    }
+  public AudioVideoFormat(JsonObject json) throws Exception {
+    super(json);
+    qualityLabel = json.get("qualityLabel").getAsString();
+    width = json.get("width").getAsInt();
+    height = json.get("height").getAsInt();
+    audioSampleRate = json.get("audio_sample_rate").getAsInt();
+  }
 
-    @Override
-    public String type() {
-        return "audio/video";
-    }
+  @Override
+  public String type() {
+    return "audio/video";
+  }
 
-    public String qualityLabel() {
-        return qualityLabel;
-    }
-
-    public Integer width() {
-        return width;
-    }
-
-    public Integer height() {
-        return height;
-    }
-
-    public AudioQuality audioQuality() {
-        return itag.audioQuality();
-    }
-
-    public Integer audioSampleRate() {
-        return audioSampleRate;
-    }
 }

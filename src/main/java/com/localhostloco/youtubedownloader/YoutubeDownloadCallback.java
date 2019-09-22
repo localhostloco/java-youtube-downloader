@@ -4,9 +4,9 @@ import java.io.File;
 
 public interface YoutubeDownloadCallback {
 
-    void onDownloading(int progress);
+  void onDownloading(int progress);
 
-    void onFinished(File file);
+  void onFinished(File file);
 
-    void onError(Throwable throwable);
+  void onError(Throwable throwable);
 }
